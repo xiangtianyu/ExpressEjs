@@ -1,5 +1,5 @@
-var request = require('request');
-//var request = require('superagent');
+//var request = require('request');
+var request = require('superagent');
 var cheerio = require('cheerio');
 var url = require('url');
 var fs = require("fs");
@@ -30,32 +30,33 @@ var ZDS_Crwal = function() {
     this.requestPage = function (src) {
         var _this = this;
         if (this.judgeUrl(src)) {
-            request = request.defaults({jar: true});
-            var j = request.jar();
-            var cookie = request.cookie("logon=" + cookie);
-            j.setCookie(cookie, url);
-            request({url: src, jar: j}, function (err, res, body) {
-                if (err) {
-                    usedUrl.push(src);
-                    return false;
-                }
-                usedUrl.push(src);
-                _this.processPage(body);
-                _this.getAllUrl(body);
-            })
-
-            // request
-            //     .get(src)
-            //     .set('Cookie', 'logon='+cookie)
-            //     .end(function(err, res, body){
-            //         if (err) {
-            //             usedUrl.push(src);
-            //             return false;
-            //         }
+            // request = request.defaults({jar: true});
+            // var j = request.jar();
+            // var cookie = request.cookie("logon=" + cookie);
+            // j.setCookie(cookie, url);
+            // request({url: src, jar: j}, function (err, res, body) {
+            //     if (err) {
             //         usedUrl.push(src);
-            //         _this.processPage(body);
-            //         _this.getAllUrl(body);
-            //     });
+            //         return false;
+            //     }
+            //     usedUrl.push(src);
+            //     _this.processPage(body);
+            //     _this.getAllUrl(body);
+            // })
+
+            request
+                .get(src)
+                .set('User-Agent','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2414.0 Safari/537.36')
+                .set('Cookie', 'logon='+cookie)
+                .end(function(err, res){
+                    if (err) {
+                        usedUrl.push(src);
+                        return false;
+                    }
+                    usedUrl.push(src);
+                    _this.processPage(res.text);
+                    _this.getAllUrl(res.text);
+                });
         }
     };
 

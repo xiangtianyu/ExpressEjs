@@ -31,4 +31,8 @@ router.get('/crawl', function(req, res, next) {
     c.startCrawl("http://book.zongheng.com/chapter/189169/3431698.html");
 });
 
+router.get('/login', function(req, res, next) {
+
+});
+
 module.exports = router;
