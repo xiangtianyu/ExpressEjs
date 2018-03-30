@@ -4,6 +4,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var sessionStore = require('./redis/redis').sessionStore;
+var RedisStore = require('connect-redis')(session);
+
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -20,8 +24,16 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('zdsSession'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    store: new RedisStore(sessionStore),
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, //默认1小时
+    secret: 'zdsSession',
+    resave: true,
+    saveUninitialized: true
+}));
 
 app.use('/', index);
 app.use('/users', users);

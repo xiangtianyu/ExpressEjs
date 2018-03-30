@@ -2,6 +2,8 @@ var express = require('express');
 var passHash = require('../utils/passHash');
 var User = require('../model/user');
 var Salt = require('../model/salt');
+var redis = require('../redis/redis');
+var checkNotLogin = require('../middleware/checkLogin').checkNotLogin;
 var router = express.Router();
 
 /* GET home page. */
@@ -76,6 +78,14 @@ router.post('/login', function(req, res, next) {
                 var passRes = ph.cryptPwd(password, salt);
 
                 if (passRes === pass) {
+                    var user = {
+                        username: docs.username,
+                        lastLoginIp: docs.lastLoginIp,
+                        uid: docs._id,
+                        login: true
+                    };
+                  req.session.user = user;
+                  res.cookie('login', user.username, {signed: true, maxAge: 3600 * 24});
                   res.render('console', { title: 'login success' });
                 }
                 else {
@@ -85,6 +95,11 @@ router.post('/login', function(req, res, next) {
         }
     });
 
+});
+
+router.get('/logout', function(req, res, next) {
+    req.session.user = null;
+    res.render('login', { title: 'logout success' });
 });
 
 module.exports = router;
